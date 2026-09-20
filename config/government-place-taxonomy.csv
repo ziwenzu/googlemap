@@ -1,0 +1,19 @@
+service_family,include_pattern,exclude_pattern,level_hint,priority,notes
+motor_vehicles,"department of motor vehicles|division of motor vehicles|bureau of motor vehicles|motor vehicle department|dmv office|driver license office|driver licensing office|tag office|license bureau","driving school|car rental|auto repair|vehicle dealer",state,1,High-salience administrative encounter
+postal_service,"united states postal service|us postal service|u\\.?s\\.? post office|post office|usps","mailbox store|postal annex|ups store|fedex|shipping center",federal,1,Match official USPS registry where possible
+social_security,"social security administration|social security office|ssa office","insurance agency|financial advisor",federal,1,Often mandatory or low-exit encounters
+public_library,"public library|county library|city library|municipal library|library branch","little free library|university library|school library|law library",local,1,Aggregate to system for IMLS validation when needed
+court,"courthouse|district court|municipal court|county court|superior court|probate court|traffic court|family court","food court|basketball court|tennis court|court apartments",mixed,1,Require manual review of ambiguous names
+police,"police department|police station|sheriff office|sheriff's office|state police|highway patrol","police supply|police museum|police association",mixed,2,Posting restrictions and political commentary are central threats
+corrections,"department of corrections|correctional facility|county jail|state prison|detention center","juvenile museum|historic jail",mixed,2,Limited visitor choice and platform restrictions
+city_hall,"city hall|town hall|municipal building|borough hall|village hall","event venue|wedding venue|restaurant",local,1,Verify that the listing represents a government office
+county_clerk,"county clerk|city clerk|town clerk|recorder of deeds|register of deeds|vital records office","law office|title company",local,1,Document and election-adjacent services
+tax_revenue,"internal revenue service|irs taxpayer assistance center|department of revenue|tax collector|assessor office|treasurer office","tax preparation|accountant|h&r block|liberty tax",mixed,1,Separate federal IRS from state/local revenue offices
+elections,"board of elections|election commission|registrar of voters|voter registration office|elections office","campaign office|political party",mixed,1,Potentially politicized observation process
+human_services,"department of human services|social services office|public assistance office|welfare office|medicaid office|snap office","charity|nonprofit|private counseling",mixed,1,High administrative burden and vulnerable populations
+public_health,"public health department|county health department|city health department|health district office","hospital|private clinic|pharmacy|dentist",mixed,2,Separate service delivery from regulatory offices
+veterans,"department of veterans affairs|veterans affairs office|va regional office|va medical center|va clinic","veterans organization|vfw post|american legion",federal,2,May mix clinical and administrative experience
+parks_recreation,"national park service|state park office|parks and recreation department|visitor center","amusement park|rv park|private campground",mixed,3,Useful for exposure validation but different service construct
+fire_emergency,"fire department|fire station|emergency management office","fire equipment|fire protection service",local,3,Many encounters are not walk-in public services
+other_government,"government office|federal building|state office building|county administration|municipal office","private office|office supply|coworking",mixed,4,Candidate bucket requiring manual adjudication
+

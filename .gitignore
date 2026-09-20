@@ -1,0 +1,55 @@
+# Raw and restricted data
+data/raw/**
+data/external/**
+data/interim/**
+data/processed/**
+!data/raw/.gitkeep
+!data/external/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+!data/README.md
+!data/download-manifest.tsv
+
+# Original source documents
+sources/og/
+sources/unprocessed/*
+!sources/unprocessed/.gitkeep
+*.pdf
+*.docx
+
+# Large/binary formats
+*.json.gz
+*.jsonl.gz
+*.parquet
+*.arrow
+*.feather
+*.dta
+*.rds
+*.zip
+*.7z
+
+# Environments and secrets
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+*.pem
+*.key
+credentials*.json
+token*.json
+.secrets/
+
+# Generated/local outputs
+logs/
+notebooks/.ipynb_checkpoints/
+figures/*.png
+figures/*.pdf
+tables/*.tex
+tables/*.csv
+
+# OS/editors
+.DS_Store
+.Rhistory
+.vscode/
+.idea/
