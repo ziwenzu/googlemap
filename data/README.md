@@ -18,6 +18,21 @@ script version or Git commit.
   review streams.
 - `processed/` — analysis-ready office-by-month and service-by-region panels.
 
+`raw/ucsd-google-local/` may be a symbolic link to a large external volume. Keep
+the link at this exact project-relative path so all scripts continue to work; the
+linked archives remain excluded from Git and should not be synchronized through
+Dropbox.
+
+After the complete metadata collection is present, run `make national-filter`.
+This creates per-partition retrieval tables under
+`interim/government-places-by-state/` and a combined
+`interim/government-places-all.csv`. These are high-recall candidates requiring
+validation, not an analysis-ready public-sector frame.
+
+Run `make national-qa` after retrieval to create
+`docs/national-candidate-screen-report.md` with duplicate, rule-family, match-field,
+and manual-review diagnostics.
+
 ## Required provenance fields
 
 Every processed row should be traceable to:
@@ -38,4 +53,3 @@ The raw UCSD files include user identifiers and names. Do not release those fiel
 Use a project-specific salted hash for internal longitudinal diagnostics and drop
 names from processed analytical files. Do not infer protected characteristics from
 reviewer names or photographs.
-

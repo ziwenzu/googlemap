@@ -10,13 +10,15 @@ therefore unsuitable for studying public-office coverage and review sparsity.
 
 ## What the code does
 
-1. checks remote archive sizes and downloads with resume support;
+1. checks remote archive sizes and downloads one state or all 52 U.S. partitions
+   with resume support;
 2. verifies gzip integrity, byte count, and SHA-256 provenance;
 3. streams place metadata to identify government-service candidates;
 4. streams reviews for selected `gmap_id` values while removing names and hashing
    reviewer IDs with a project-local HMAC key;
 5. builds a deduplicated place-month descriptive panel; and
-6. produces an aggregate QA report with no review text or reviewer identifiers.
+6. produces aggregate pilot and nationwide retrieval QA reports with no review
+   text or reviewer identifiers.
 
 The rule-retrieved candidates are not a validated government-facility universe.
 Manual adjudication and official-roster recall checks are required before
@@ -34,6 +36,21 @@ make pilot-all
 make test
 ```
 
+For the complete U.S. collection (50 states, DC, and the publisher's `Other`
+partition), point `data/raw/ucsd-google-local` to a large external volume if
+needed, then run:
+
+```bash
+make national-check
+make national-download
+make national-filter
+make national-qa
+```
+
+`national-filter` creates a high-recall candidate table; `national-qa` reports
+duplicates, rule-family composition, match fields, and manual-review flags. These
+outputs remain retrieval candidates, not confirmed government facilities.
+
 Raw and derived data are excluded by `.gitignore`. The downloader records local
 provenance in `data/download-manifest.tsv`. Do not publish raw review text,
 reviewer names, HMAC keys, or row-level restricted derivatives.
@@ -41,10 +58,13 @@ reviewer names, HMAC keys, or row-level restricted derivatives.
 ## Main files
 
 - `scripts/download-ucsd-state.sh` — resumable, idempotent download and verification
+- `scripts/download-ucsd-all.sh` — complete 52-partition download/check wrapper
+- `scripts/filter-ucsd-all-government-places.sh` — nationwide streaming retrieval
 - `scripts/01_filter_government_places.py` — candidate retrieval with match-field provenance
 - `scripts/02_extract_reviews.py` — privacy-aware streaming extraction
 - `scripts/03_summarize_place_month.py` — review-key deduplication and aggregation
 - `scripts/04_pilot_qa.py` — aggregate data-quality report
+- `scripts/05_audit_national_candidates.py` — nationwide candidate-table audit
 - `scripts/tests/test_pipeline.py` — end-to-end smoke tests
 - `config/government-place-taxonomy.csv` — versionable retrieval rules
 - `simulation/anchor_transport.py` — small anchor-transport identification simulation

@@ -75,7 +75,9 @@ def main():
         raise SystemExit(f"Missing metadata archive: {args.metadata}")
     rules = load_taxonomy(args.taxonomy)
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    source_partition = args.metadata.name.removeprefix("meta-").removesuffix(".json.gz")
     fields = [
+        "source_partition",
         "gmap_id",
         "name",
         "address",
@@ -119,6 +121,7 @@ def main():
             matched_fields = sorted(primary_hits)
             writer.writerow(
                 {
+                    "source_partition": source_partition,
                     "gmap_id": clean(record.get("gmap_id")),
                     "name": clean(record.get("name")),
                     "address": clean(record.get("address")),

@@ -4,12 +4,16 @@ RAW_DIR := data/raw/ucsd-google-local
 INTERIM_DIR := data/interim
 PROCESSED_DIR := data/processed
 
-.PHONY: help pilot-check pilot-download pilot-filter pilot-extract pilot-summary pilot-qa pilot-all test
+.PHONY: help pilot-check pilot-download national-check national-download national-filter national-qa pilot-filter pilot-extract pilot-summary pilot-qa pilot-all test
 
 help:
 	@echo "Targets:"
 	@echo "  pilot-check     inspect remote file sizes"
 	@echo "  pilot-download  download metadata and reviews for $(PILOT_STATE)"
+	@echo "  national-check  inspect every complete U.S. partition"
+	@echo "  national-download download every complete U.S. partition"
+	@echo "  national-filter retrieve public-sector candidates from all metadata"
+	@echo "  national-qa     audit the combined nationwide candidate table"
 	@echo "  pilot-filter    identify candidate government places"
 	@echo "  pilot-extract   stream reviews for candidate places"
 	@echo "  pilot-summary   build place-month descriptive panel"
@@ -22,6 +26,20 @@ pilot-check:
 
 pilot-download:
 	./scripts/download-ucsd-state.sh "$(PILOT_STATE)" --download
+
+national-check:
+	./scripts/download-ucsd-all.sh --check
+
+national-download:
+	./scripts/download-ucsd-all.sh --download
+
+national-filter:
+	./scripts/filter-ucsd-all-government-places.sh
+
+national-qa:
+	$(PYTHON) scripts/05_audit_national_candidates.py \
+		--places "$(INTERIM_DIR)/government-places-all.csv" \
+		--output "docs/national-candidate-screen-report.md"
 
 pilot-filter:
 	$(PYTHON) scripts/01_filter_government_places.py \

@@ -23,6 +23,9 @@ RAW_DIR="$PROJECT_ROOT/data/raw/ucsd-google-local"
 MANIFEST="$PROJECT_ROOT/data/download-manifest.tsv"
 BASE_URL="https://mcauleylab.ucsd.edu/public_datasets/gdrive/googlelocal"
 STATE_FILE="${STATE_INPUT// /_}"
+if [[ "$STATE_INPUT" == "Other" ]]; then
+  STATE_FILE="other"
+fi
 
 mkdir -p "$RAW_DIR"
 
@@ -100,8 +103,8 @@ download_one() {
     echo "Size mismatch for $target.part: expected $expected, got $actual" >&2
     exit 1
   fi
+  gzip -t "$target.part"
   mv "$target.part" "$target"
-  gzip -t "$target"
   record_manifest "$kind" "$url" "$target"
 }
 
@@ -118,7 +121,8 @@ echo "State: $STATE_INPUT"
 echo "Metadata: $(human_bytes "$META_BYTES") — $META_URL"
 echo "Reviews:  $(human_bytes "$REVIEW_BYTES") — $REVIEW_URL"
 echo "Total:    $(human_bytes "$TOTAL_BYTES")"
-df -h "$PROJECT_ROOT" | awk 'NR==1 || NR==2 {print}'
+printf 'Bytes: metadata=%s reviews=%s total=%s\n' "$META_BYTES" "$REVIEW_BYTES" "$TOTAL_BYTES"
+df -h "$RAW_DIR" | awk 'NR==1 || NR==2 {print}'
 
 if [[ "$MODE" == "--check" ]]; then
   exit 0

@@ -87,6 +87,7 @@ class PipelineSmokeTest(unittest.TestCase):
             with places.open(newline="", encoding="utf-8") as handle:
                 rows = list(csv.DictReader(handle))
             self.assertEqual([row["gmap_id"] for row in rows], ["gov-1"])
+            self.assertEqual(rows[0]["source_partition"], "meta")
             self.assertIn("name", rows[0]["matched_fields"])
             self.assertEqual(rows[0]["address_only_match"], "no")
 
@@ -146,6 +147,80 @@ class PipelineSmokeTest(unittest.TestCase):
         recovered = invert_observed(observed(target_latent), factors)
         for actual, expected in zip(recovered, target_latent):
             self.assertAlmostEqual(actual, expected)
+
+    def test_national_candidate_audit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            places = tmp / "places.csv"
+            report = tmp / "report.md"
+            fieldnames = [
+                "source_partition",
+                "gmap_id",
+                "name",
+                "latitude",
+                "longitude",
+                "service_family",
+                "all_service_families",
+                "match_priority",
+                "matched_fields",
+                "address_only_match",
+                "classification_status",
+                "manual_label",
+            ]
+            rows = [
+                {
+                    "source_partition": "Alpha",
+                    "gmap_id": "gov-1",
+                    "name": "Example Office",
+                    "latitude": "1",
+                    "longitude": "2",
+                    "service_family": "motor_vehicles",
+                    "all_service_families": "motor_vehicles",
+                    "match_priority": "1",
+                    "matched_fields": "name",
+                    "address_only_match": "no",
+                    "classification_status": "rule_candidate",
+                    "manual_label": "",
+                },
+                {
+                    "source_partition": "Beta",
+                    "gmap_id": "gov-1",
+                    "name": "Example Office",
+                    "latitude": "1",
+                    "longitude": "2",
+                    "service_family": "motor_vehicles",
+                    "all_service_families": "motor_vehicles;other_government",
+                    "match_priority": "1",
+                    "matched_fields": "address",
+                    "address_only_match": "yes",
+                    "classification_status": "rule_candidate",
+                    "manual_label": "",
+                },
+            ]
+            with places.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(rows)
+
+            subprocess.run(
+                [
+                    "python3",
+                    str(ROOT / "scripts/05_audit_national_candidates.py"),
+                    "--places",
+                    str(places),
+                    "--output",
+                    str(report),
+                    "--reported-source-places",
+                    "10",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            content = report.read_text(encoding="utf-8")
+            self.assertIn("| Candidate rows | 2 |", content)
+            self.assertIn("| Duplicate `gmap_id` values | 1 |", content)
+            self.assertIn("| Address-only match rows | 1 (50.00%) |", content)
 
 
 if __name__ == "__main__":
