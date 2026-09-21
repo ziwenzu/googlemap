@@ -92,19 +92,41 @@ The Vermont pilot draws 40 records from each of four strata:
 3. keyword candidates without a USGS match;
 4. general Google negatives.
 
-The master file retains exact stratum populations, selection probabilities, and
-inverse-probability weights. Coder A and Coder B receive independently shuffled,
-blinded files without automated predictions or official matches. After both are
-frozen, adjudication will produce:
+The master retains stratum populations, selection probabilities, and inverse
+probability weights. With one student available, reuse the existing 160 records
+for one evidence-backed coding round, followed by 40 delayed blinded recodings,
+10 per stratum. No primary sample is redrawn and no sampling weights change.
 
-- Cohen's kappa for public-sector status and analytic tier;
-- per-tier and per-status precision, recall, and F1;
-- weighted missed-place prevalence among negatives;
-- error tables by service family, ownership uncertainty, and match method.
+The student receives only the initial form, codebook, and Chinese instructions.
+The investigator holds the sampling key and blank retest until the first round
+is frozen. Schedule the repeat after 7-14 days without access to initial labels.
+This practical interval cannot guarantee memory washout. New IDs and order reduce
+copying but cannot eliminate recognition of place names.
 
-Thresholds are revised before national execution if kappa is below 0.70, strong
-candidate precision is below 0.90, or any retained analytic tier has F1 below
-0.70.
+Report within-coder repeat agreement, confusion tables, and, when defined, retest
+kappa. These measure neither inter-coder reliability nor factual accuracy.
+Record official evidence for ownership, access, and historical status; preserve
+uncertain labels, both rounds, and separate final resolutions. An AI assistant
+cannot serve as a second independent human coder.
+
+Evaluate linkage correctness separately from public-sector status and analysis
+eligibility. Report design-weighted performance against single-coder reference
+labels with uncertainty. Forty ordinary negatives are a diagnostic sample, not
+proof of completeness. With zero events in 40 independent binomial observations,
+the one-sided 95% upper limit is 1 - 0.05^(1/40), approximately 7.2%; this is a
+negative-stratum prevalence bound, not recall. Stratified finite-population
+estimates require design-aware intervals. See
+[NIST confidence intervals](https://www.itl.nist.gov/div898/handbook/prc/section2/prc241.htm).
+
+The previous blanket kappa/precision/F1 gate is superseded. A small Vermont
+development sample cannot certify national performance, and tier F1 requires a
+frozen tier classifier that the entity linker does not provide. After development,
+draw a fresh national evaluation sample stratified by source, service family,
+geography, and negative-candidate risk. Allocate based on pilot errors/prevalence
+and desired interval widths; retain a probability sample of ordinary negatives.
+
+See [the student instructions](single-coder-student-guide.md). Historical Coder A/B
+files remain preserved; they are not evidence of completed dual coding.
 
 ## Executed pilot status
 
@@ -124,12 +146,14 @@ public-service satisfaction.
 
 ## Stage gates
 
-1. Complete two independent Vermont coder files.
-2. Compute agreement and weighted classifier metrics; revise v0.2 if necessary.
-3. Freeze v1.0 and run all state metadata partitions.
+1. Send the existing 160-place package to one student; retain retest and key.
+2. Continue candidate discovery and official-source collection during manual work.
+   All such outputs remain provisional candidates.
+3. Review initial labels, delayed repeat stability, evidence, and uncertainty.
+   Refine on development data and freeze versions before fresh evaluation.
 4. Add DMV state adapters, then SSA, courts, IRS, VA, USPS, elections, human
    services, public health, and clerk sources.
-5. Repeat family-stratified validation nationally and freeze the released
-   `gmap_id` lookup.
+5. Draw a fresh national evaluation sample and estimate performance with design
+   weights and uncertainty before releasing an evidence-reviewed eligible lookup.
 6. Only then extract reviews for adjudicated eligible places and construct
    service-specific outcome scales.

@@ -8,6 +8,10 @@ USGS_RAW_DIR := $(OFFICIAL_ROOT)/raw/usgs-national-structures
 USGS_PROCESSED := $(OFFICIAL_ROOT)/processed/usgs-national-structures-current.csv.gz
 USGS_LINK_DIR := $(OFFICIAL_ROOT)/processed/usgs-google-linkage-by-state
 USGS_VALIDATION_DIR := $(OFFICIAL_ROOT)/validation
+SINGLE_CODER_MASTER ?= $(USGS_VALIDATION_DIR)/$(PILOT_STATE)-place-validation-master.csv
+SINGLE_CODER_PACKAGE ?= $(USGS_VALIDATION_DIR)/single-coder-v1
+
+.PHONY: official-single-coder-package
 
 .PHONY: help pilot-check pilot-download national-check national-download national-filter national-qa official-check official-download official-normalize official-link-libraries official-all official-usgs-check official-usgs-download official-usgs-normalize official-usgs-link-pilot official-usgs-validation-pilot official-usgs-link-national pilot-filter pilot-extract pilot-summary pilot-qa pilot-all test
 
@@ -29,7 +33,8 @@ help:
 	@echo "  official-usgs-normalize standardize USGS features with owner uncertainty"
 	@echo "  official-usgs-link-pilot reverse-link complete $(PILOT_STATE) metadata"
 	@echo "  official-usgs-validation-pilot draw blinded weighted coder files"
-	@echo "  official-usgs-link-national run all partitions after the v1 threshold gate"
+	@echo "  official-single-coder-package prepare student forms and a held-back retest"
+	@echo "  official-usgs-link-national generate provisional national candidates"
 	@echo "  pilot-filter    identify candidate government places"
 	@echo "  pilot-extract   stream reviews for candidate places"
 	@echo "  pilot-summary   build place-month descriptive panel"
@@ -118,9 +123,15 @@ official-usgs-validation-pilot:
 		--coder-b-output "$(USGS_VALIDATION_DIR)/$(PILOT_STATE)-place-validation-coder-b.csv" \
 		--summary "$(USGS_VALIDATION_DIR)/$(PILOT_STATE)-place-validation-summary.json"
 
+official-single-coder-package:
+	$(PYTHON) scripts/12_prepare_single_coder_validation.py \
+		--master "$(SINGLE_CODER_MASTER)" \
+		--output-dir "$(SINGLE_CODER_PACKAGE)" \
+		--codebook config/classification-codebook.md \
+		--instructions docs/single-coder-student-guide.md
+
+# Candidate discovery does not confer validated or analysis-ready status.
 official-usgs-link-national:
-	@test -f "$(USGS_VALIDATION_DIR)/thresholds-frozen-v1.json" || \
-		(echo "Refusing national linkage: finish double coding and freeze thresholds-frozen-v1.json first." >&2; exit 1)
 	$(PYTHON) scripts/10_link_usgs_to_google.py \
 		--metadata-dir "$(RAW_DIR)" \
 		--official "$(USGS_PROCESSED)" \

@@ -22,7 +22,8 @@ therefore unsuitable for studying public-office coverage and review sparsity.
    unresolved and many-to-one cases for review;
 8. reverse-links current USGS government and public-service structures against
    complete state metadata rather than only keyword candidates; and
-9. draws weighted, blinded validation samples for two independent coders.
+9. draws weighted, blinded validation samples and prepares one-coder work with
+   a held-back delayed retest (the dual-coder export remains available).
 
 The rule-retrieved candidates are not a validated government-facility universe.
 Manual adjudication and official-roster recall checks are required before
@@ -76,7 +77,7 @@ make official-normalize
 make official-link-libraries
 ```
 
-Add the current USGS National Structures discovery frame and run the gated
+Add the current USGS National Structures discovery frame and run the
 Vermont pilot:
 
 ```bash
@@ -85,12 +86,18 @@ make official-usgs-download
 make official-usgs-normalize
 make official-usgs-link-pilot
 make official-usgs-validation-pilot
+make official-single-coder-package
 ```
 
 The current USGS source is discovery evidence, not a time-aligned 2021
-denominator or proof of public ownership/access. The national target refuses to
-run until the blinded pilot has been double-coded and a v1 threshold file has
-been frozen.
+denominator or proof of public ownership/access. National candidate discovery
+can run alongside human validation; it does not produce analysis-ready labels.
+The one-coder package uses the existing 160-place Vermont development sample,
+with 40 held-back retests released after 7–14 days. Send only `student_send_now`
+to the coder initially and retain `investigator_only`. Retests measure
+within-coder stability, not independent inter-coder reliability. A fresh
+national evaluation is still required before claiming national accuracy. See
+[`docs/single-coder-student-guide.md`](docs/single-coder-student-guide.md).
 
 The common schema preserves `record_grain`, `evidence_role`, and
 `public_access_status`. Library linkage uses name, address, ZIP, and geographic
@@ -120,6 +127,7 @@ reviewer names, HMAC keys, or row-level restricted derivatives.
 - `scripts/09_normalize_usgs_structures.py` — ownership-aware structure normalization
 - `scripts/10_link_usgs_to_google.py` — resumable official-to-Google reverse linkage
 - `scripts/11_draw_place_validation_sample.py` — weighted blinded validation sample
+- `scripts/12_prepare_single_coder_validation.py` — blinded one-coder work and held-back retest
 - `config/official-roster-sources.csv` — source roles and release constraints
 - `config/usgs-structure-layers.csv` — selected layers and analytic-tier policy
 - `scripts/tests/test_pipeline.py` — smoke and linkage tests

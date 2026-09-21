@@ -1,4 +1,4 @@
-# Government-place classification codebook, pilot v0.2
+# Government-place classification codebook, pilot v0.3
 
 ## Population and sampling frame
 
@@ -158,15 +158,27 @@ implausible. Those are review-level measurement questions.
 1. Freeze the automated linkage version and the unique `gmap_id` input frame.
 2. Draw separate probability samples of confirmed official candidates, uncertain
    official matches, keyword-only candidates, and general Google negatives.
-3. Give two coders independently randomized files that hide automated status,
-   scores, official names, and sampling strata.
+3. Under the current one-student staffing constraint, give one coder a randomized
+   file hiding automated status, scores, official names, and sampling strata.
 4. Code `public_sector_label`, `service_family`, `public_facing`,
-   `analytic_tier`, and `exclusion_reason`.
-5. Revise definitions before national classification if Cohen's kappa is below
-   0.70 for public-sector status or analytic tier.
-6. Report stratum-weighted precision, recall, F1, and confusion matrices. The
-   pilot target is at least 0.90 precision for
-   `confirmed_official_candidate` and at least 0.70 F1 for each retained
-   analytic tier. These are decision thresholds, not claims of universal truth.
-7. Preserve both coder files and an adjudicated crosswalk; never overwrite the
-   automated candidate label.
+   `analytic_tier`, `ownership_status`, evidence URL/note/vintage, and
+   `exclusion_reason`. Current evidence does not prove ownership in 2021.
+5. Freeze the initial 160 labels, then arrange a blind repeat of 40 records
+   (10 per stratum) after 7-14 days with new IDs and order. Report within-coder
+   agreement and confusion tables. Retest kappa is not inter-coder reliability;
+   familiarity can persist despite changed IDs and order.
+6. Audit disagreements and unresolved records using official evidence. Preserve
+   original rounds plus separately recorded resolutions. AI can assist source
+   searches but cannot be counted as a second human coder.
+7. Report design-weighted performance against single-coder reference labels with
+   uncertainty. Entity-link correctness, public-sector status, and analytic
+   eligibility are separate targets. Tier F1 requires a frozen tier classifier.
+   Unknown labels must not be silently treated as negative.
+8. Treat Vermont as development data. Draw a fresh nationally stratified sample
+   before national accuracy claims or release of analysis-ready labels. Forty
+   general negatives cannot establish high recall for a rare target.
+
+Revision v0.3 changes staffing and validation, not place inclusion definitions.
+The former blanket dual-coder gate was a project implementation choice and is
+superseded. Engineering candidate retrieval can proceed with provisional status;
+substantive analysis still requires recorded eligibility decisions.
