@@ -12,13 +12,14 @@ therefore unsuitable for studying public-office coverage and review sparsity.
 
 1. checks remote archive sizes and downloads one state or all 52 U.S. partitions
    with resume support;
-2. verifies gzip integrity, byte count, and SHA-256 provenance;
+2. verifies archive integrity, byte count, and SHA-256 provenance;
 3. streams place metadata to identify government-service candidates;
 4. streams reviews for selected `gmap_id` values while removing names and hashing
    reviewer IDs with a project-local HMAC key;
-5. builds a deduplicated place-month descriptive panel; and
-6. produces aggregate pilot and nationwide retrieval QA reports with no review
-   text or reviewer identifiers.
+5. builds a deduplicated place-month descriptive panel;
+6. downloads and normalizes source-specific official government rosters; and
+7. links public-library candidates to official IMLS outlets while retaining
+   unresolved and many-to-one cases for review.
 
 The rule-retrieved candidates are not a validated government-facility universe.
 Manual adjudication and official-roster recall checks are required before
@@ -51,27 +52,61 @@ make national-qa
 duplicates, rule-family composition, match fields, and manual-review flags. These
 outputs remain retrieval candidates, not confirmed government facilities.
 
+## Official roster validation
+
+There is no single national facility-level list covering every U.S. public
+service. This project builds a versioned registry from sources with different
+observational units:
+
+- Census Government Units Listing: state/local government organizations;
+- IMLS Public Libraries Survey: public-library service outlets; and
+- GSA Federal Real Property Profile: federal assets, not necessarily publicly
+  accessible offices.
+
+Download and standardize the initial sources, then run the first
+service-specific linkage:
+
+```bash
+make official-check
+make official-download
+make official-normalize
+make official-link-libraries
+```
+
+The common schema preserves `record_grain`, `evidence_role`, and
+`public_access_status`. Library linkage uses name, address, ZIP, and geographic
+agreement. Multiple Google places pointing to one official outlet are sent to
+`needs_review`; unmatched records remain unresolved rather than being called
+non-government. See
+[`docs/official-roster-linkage-design.md`](docs/official-roster-linkage-design.md).
+
 Raw and derived data are excluded by `.gitignore`. The downloader records local
 provenance in `data/download-manifest.tsv`. Do not publish raw review text,
 reviewer names, HMAC keys, or row-level restricted derivatives.
 
 ## Main files
 
-- `scripts/download-ucsd-state.sh` — resumable, idempotent download and verification
+- `scripts/download-ucsd-state.sh` — resumable state download and verification
 - `scripts/download-ucsd-all.sh` — complete 52-partition download/check wrapper
 - `scripts/filter-ucsd-all-government-places.sh` — nationwide streaming retrieval
-- `scripts/01_filter_government_places.py` — candidate retrieval with match-field provenance
+- `scripts/01_filter_government_places.py` — candidate retrieval with provenance
 - `scripts/02_extract_reviews.py` — privacy-aware streaming extraction
 - `scripts/03_summarize_place_month.py` — review-key deduplication and aggregation
 - `scripts/04_pilot_qa.py` — aggregate data-quality report
-- `scripts/05_audit_national_candidates.py` — nationwide candidate-table audit
-- `scripts/tests/test_pipeline.py` — end-to-end smoke tests
-- `config/government-place-taxonomy.csv` — versionable retrieval rules
-- `simulation/anchor_transport.py` — small anchor-transport identification simulation
+- `scripts/05_audit_national_candidates.py` — nationwide candidate audit
+- `scripts/download-official-rosters.sh` — official source download and verification
+- `scripts/06_normalize_official_rosters.py` — grain-aware roster normalization
+- `scripts/07_link_public_libraries.py` — conservative IMLS candidate linkage
+- `config/official-roster-sources.csv` — source roles and release constraints
+- `scripts/tests/test_pipeline.py` — smoke and linkage tests
 
 ## Important scope limits
 
-The source is a historical snapshot through September 2021. It cannot by itself
-identify unposted encounters, pre-publication blocking, later deletion, or current
-office performance. Review counts and ratings describe visible online traces, not
-an unbiased sample of experienced service satisfaction.
+The UCSD source is a historical snapshot through September 2021. It cannot by
+itself identify unposted encounters, pre-publication blocking, later deletion, or
+current office performance. Review counts and ratings describe visible online
+traces, not an unbiased sample of experienced service satisfaction.
+
+An official organization or real-property record is not evidence of public
+access. Even a strong automated facility link remains a candidate until the
+project's adjudication policy is applied.

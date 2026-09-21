@@ -14,6 +14,9 @@ script version or Git commit.
   partners; never confuse this with the UCSD historical snapshot.
 - `external/admin/` — administrative transaction counts, waiting times, staffing,
   service hours, probability surveys, and official facility frames.
+- `external/official-rosters/` — source-specific government organization and
+  facility lists used as the denominator and for Google-place linkage. This may be
+  a symbolic link to external storage.
 - `interim/` — candidate government places, adjudication sheets, and filtered
   review streams.
 - `processed/` — analysis-ready office-by-month and service-by-region panels.
@@ -32,6 +35,25 @@ validation, not an analysis-ready public-sector frame.
 Run `make national-qa` after retrieval to create
 `docs/national-candidate-screen-report.md` with duplicate, rule-family, match-field,
 and manual-review diagnostics.
+
+Run `make official-check` and `make official-download` to acquire the first
+time-aligned official frames (Census 2021 government units, IMLS FY2021 public
+library outlets, and GSA FY2021 federal real property). Source roles and release
+constraints are recorded in `config/official-roster-sources.csv`; do not publish a
+source marked `restricted`.
+
+Run `make official-normalize` to create source-specific gzip-compressed CSV files
+under `external/official-rosters/processed/`. The outputs share one schema but
+retain `record_grain`, `evidence_role`, and `public_access_status`. In particular,
+Census government units are organizations rather than offices, and GSA real
+property assets do not establish public access. IMLS outlets are the first
+facility-level frame that can validate a service-specific Google Maps subset.
+
+Run `make official-link-libraries` for the first service-specific linkage. It
+deduplicates Google candidates by `gmap_id`, links them to IMLS outlets using
+name, address, ZIP, and geographic agreement, and preserves blank adjudication
+and exclusion fields. An unmatched record remains unresolved rather than being
+classified as non-government.
 
 ## Required provenance fields
 

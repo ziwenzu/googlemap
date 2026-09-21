@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 import unittest
 import sys
+import importlib.util
 from pathlib import Path
 
 
@@ -12,6 +13,17 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "simulation"))
 
 from anchor_transport import invert_observed, relative_selection
+
+
+def load_script(name, filename):
+    spec = importlib.util.spec_from_file_location(name, ROOT / "scripts" / filename)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+official_rosters = load_script("official_rosters", "06_normalize_official_rosters.py")
+library_linkage = load_script("library_linkage", "07_link_public_libraries.py")
 
 
 class PipelineSmokeTest(unittest.TestCase):
@@ -221,6 +233,95 @@ class PipelineSmokeTest(unittest.TestCase):
             self.assertIn("| Candidate rows | 2 |", content)
             self.assertIn("| Duplicate `gmap_id` values | 1 |", content)
             self.assertIn("| Address-only match rows | 1 (50.00%) |", content)
+
+    def test_official_roster_normalization_preserves_record_grain(self):
+        census = official_rosters.census_row(
+            {
+                "CENSUS_ID_PID6": "123456",
+                "CENSUS_ID_GIDID": "gid",
+                "UNIT_NAME": "Example County",
+                "UNIT_TYPE": "1 - COUNTY",
+                "ADDRESS1": "1 Main St",
+                "CITY": "Example",
+                "STATE": "VT",
+                "FIPS_STATE": "50",
+                "ZIP": "05001",
+                "IS_ACTIVE": "Y",
+            },
+            "General Purpose",
+        )
+        self.assertEqual(census["record_grain"], "government_organization")
+        self.assertEqual(census["public_access_status"], "not_a_facility_record")
+
+        imls = official_rosters.imls_row(
+            {
+                "LIBID": "VT0001-001",
+                "FSCSKEY": "VT0001",
+                "FSCS_SEQ": "001",
+                "LIBNAME": "Example Public Library",
+                "ADDRESS": "2 Main St",
+                "CITY": "Example",
+                "STABR": "VT",
+                "ZIP": "05001",
+                "C_OUT_TY": "CE",
+                "STATSTRU": "00",
+                "LATITUDE": "44.0",
+                "LONGITUD": "-72.0",
+            },
+            {"VT0001": "Example Library System"},
+        )
+        self.assertEqual(imls["record_grain"], "public_library_service_outlet")
+        self.assertEqual(imls["source_record_id"], "VT0001:001")
+        self.assertEqual(imls["public_access_status"], "official_public_service_outlet")
+        self.assertEqual(imls["parent_entity_name"], "Example Library System")
+
+        gsa = official_rosters.gsa_row(
+            {
+                "Real Property Unique Identifier": "asset-1",
+                "Reporting Agency": "GENERAL SERVICES ADMINISTRATION",
+                "Reporting Agency Code": "47",
+                "Reporting Bureau Code": "01",
+                "Installation Name": "Example Federal Building",
+                "Street Address": "3 Main St",
+                "City Name": "Example",
+                "State Code": "50",
+                "Zip Code": "05001-1234",
+                "Asset Status": "Current Mission Need",
+                "Real Property Use": "Office",
+            }
+        )
+        self.assertEqual(gsa["record_grain"], "federal_real_property_asset")
+        self.assertEqual(gsa["source_record_id"], "47:01:asset-1")
+        self.assertEqual(gsa["state"], "VT")
+        self.assertEqual(gsa["public_access_status"], "unknown_asset_not_public_access_evidence")
+        self.assertEqual(gsa["zip"], "05001")
+
+    def test_library_linkage_requires_agreement(self):
+        candidate = {
+            "name": "Example Public Library",
+            "address": "Example Public Library, 2 Main St, Example, VT 05001",
+            "latitude": "44.0001",
+            "longitude": "-72.0001",
+        }
+        official = {
+            "entity_name": "EXAMPLE PUBLIC LIBRARY",
+            "parent_entity_name": "EXAMPLE LIBRARY SYSTEM",
+            "address_line1": "2 MAIN STREET",
+            "latitude": "44.0",
+            "longitude": "-72.0",
+            "zip": "05001",
+        }
+        score = library_linkage.score_match(candidate, official)
+        self.assertEqual(score["status"], "confirmed_official_candidate")
+        self.assertLess(score["distance_km"], 0.02)
+        collision = library_linkage.match_fields(score, official, multiplicity=2)
+        self.assertEqual(collision["official_match_status"], "needs_review")
+        self.assertEqual(collision["official_match_method"], "ambiguous_many_to_one_official_record")
+
+        wrong = dict(official)
+        wrong.update({"entity_name": "OTHER LIBRARY", "address_line1": "900 FAR ROAD", "latitude": "45", "longitude": "-73"})
+        wrong_score = library_linkage.score_match(candidate, wrong)
+        self.assertEqual(wrong_score["status"], "not_linked")
 
 
 if __name__ == "__main__":
