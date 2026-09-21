@@ -26,6 +26,14 @@ official file.
    and `public_access_status`.
 4. `scripts/07_link_public_libraries.py` implements the first service-specific
    linkage between Google Maps candidates and official IMLS outlets.
+5. The USGS downloader stores selected current structure layers in independently
+   resumable, checksum-logged files.
+6. The USGS normalizer preserves structure type, source vintage, owner
+   uncertainty, and analytic-tier hints.
+7. The reverse linker uses official facilities as the search spine against
+   complete state Google metadata rather than keyword candidates.
+8. The validation sampler creates a weighted master sample and blinded,
+   independently shuffled coder files.
 
 Raw archives remain immutable. Normalized and linked outputs belong under the
 external `data/external/official-rosters/processed/` directory and stay outside
@@ -54,3 +62,7 @@ and government level, while asset lists may help discover addresses, but neither
 is a substitute for a public-facing service-office frame. Each new source should
 receive its own normalizer and source-specific linkage tests before its results
 enter a combined public-sector dataset.
+
+USGS is an exception only in breadth, not in evidentiary strength. Its current
+National Structures records are used for facility discovery and cannot establish
+2021 existence, public ownership, or public access without additional evidence.

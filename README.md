@@ -19,7 +19,10 @@ therefore unsuitable for studying public-office coverage and review sparsity.
 5. builds a deduplicated place-month descriptive panel;
 6. downloads and normalizes source-specific official government rosters; and
 7. links public-library candidates to official IMLS outlets while retaining
-   unresolved and many-to-one cases for review.
+   unresolved and many-to-one cases for review;
+8. reverse-links current USGS government and public-service structures against
+   complete state metadata rather than only keyword candidates; and
+9. draws weighted, blinded validation samples for two independent coders.
 
 The rule-retrieved candidates are not a validated government-facility universe.
 Manual adjudication and official-roster recall checks are required before
@@ -73,6 +76,22 @@ make official-normalize
 make official-link-libraries
 ```
 
+Add the current USGS National Structures discovery frame and run the gated
+Vermont pilot:
+
+```bash
+make official-usgs-check
+make official-usgs-download
+make official-usgs-normalize
+make official-usgs-link-pilot
+make official-usgs-validation-pilot
+```
+
+The current USGS source is discovery evidence, not a time-aligned 2021
+denominator or proof of public ownership/access. The national target refuses to
+run until the blinded pilot has been double-coded and a v1 threshold file has
+been frozen.
+
 The common schema preserves `record_grain`, `evidence_role`, and
 `public_access_status`. Library linkage uses name, address, ZIP, and geographic
 agreement. Multiple Google places pointing to one official outlet are sent to
@@ -97,7 +116,12 @@ reviewer names, HMAC keys, or row-level restricted derivatives.
 - `scripts/download-official-rosters.sh` — official source download and verification
 - `scripts/06_normalize_official_rosters.py` — grain-aware roster normalization
 - `scripts/07_link_public_libraries.py` — conservative IMLS candidate linkage
+- `scripts/08_download_usgs_structures.py` — paginated, checksum-logged USGS download
+- `scripts/09_normalize_usgs_structures.py` — ownership-aware structure normalization
+- `scripts/10_link_usgs_to_google.py` — resumable official-to-Google reverse linkage
+- `scripts/11_draw_place_validation_sample.py` — weighted blinded validation sample
 - `config/official-roster-sources.csv` — source roles and release constraints
+- `config/usgs-structure-layers.csv` — selected layers and analytic-tier policy
 - `scripts/tests/test_pipeline.py` — smoke and linkage tests
 
 ## Important scope limits

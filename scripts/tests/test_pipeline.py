@@ -24,6 +24,10 @@ def load_script(name, filename):
 
 official_rosters = load_script("official_rosters", "06_normalize_official_rosters.py")
 library_linkage = load_script("library_linkage", "07_link_public_libraries.py")
+usgs_download = load_script("usgs_download", "08_download_usgs_structures.py")
+usgs_normalize = load_script("usgs_normalize", "09_normalize_usgs_structures.py")
+usgs_linkage = load_script("usgs_linkage", "10_link_usgs_to_google.py")
+place_validation = load_script("place_validation", "11_draw_place_validation_sample.py")
 
 
 class PipelineSmokeTest(unittest.TestCase):
@@ -322,6 +326,88 @@ class PipelineSmokeTest(unittest.TestCase):
         wrong.update({"entity_name": "OTHER LIBRARY", "address_line1": "900 FAR ROAD", "latitude": "45", "longitude": "-73"})
         wrong_score = library_linkage.score_match(candidate, wrong)
         self.assertEqual(wrong_score["status"], "not_linked")
+
+    def test_usgs_normalization_handles_lowercase_arcgis_fields(self):
+        raw = {
+            "source_layer_id": 39,
+            "downloaded_at_utc": "2026-09-21T00:00:00Z",
+            "feature": {
+                "attributes": {
+                    "objectid": 10,
+                    "permanent_identifier": "place-10",
+                    "name": "Example Town Hall",
+                    "admintype": 6,
+                    "address": "1 Main St",
+                    "city": "Example",
+                    "state": "VT",
+                    "zipcode": "05001",
+                },
+                "geometry": {"x": -72.0, "y": 44.0},
+            },
+        }
+        layer = {
+            "layer_name": "City/Town Halls",
+            "service_family": "city_hall",
+            "analytic_tier_hint": "core",
+            "ownership_rule": "non_private",
+        }
+        row = usgs_normalize.normalize_row(raw, layer)
+        self.assertEqual(row["source_record_id"], "place-10")
+        self.assertEqual(row["entity_name"], "Example Town Hall")
+        self.assertEqual(row["official_owner_class"], "municipal")
+        self.assertEqual(row["owner_eligibility"], "eligible_public_owner")
+        self.assertEqual(row["latitude"], "44.0000000")
+
+        raw["feature"]["attributes"]["admintype"] = None
+        uncertain = usgs_normalize.normalize_row(raw, layer)
+        self.assertEqual(uncertain["official_owner_class"], "uncertain")
+        self.assertEqual(uncertain["owner_eligibility"], "needs_review_unknown_owner")
+
+    def test_usgs_linkage_requires_service_evidence_for_confirmation(self):
+        official = {
+            "entity_name": "Example Town Hall",
+            "address_line1": "1 Main St",
+            "latitude": "44.0",
+            "longitude": "-72.0",
+            "service_family": "city_hall",
+        }
+        good = {
+            "name": "Example Town Clerk",
+            "address": "1 Main St, Example, VT",
+            "latitude": "44.0001",
+            "longitude": "-72.0001",
+            "category": ["City government office"],
+        }
+        score = usgs_linkage.score_match(good, official)
+        self.assertEqual(score["status"], "confirmed_official_candidate")
+
+        colocated_private = {
+            "name": "Example Dental",
+            "address": "9 Other St, Example, VT",
+            "latitude": "44.0001",
+            "longitude": "-72.0001",
+            "category": ["Dentist"],
+        }
+        private_score = usgs_linkage.score_match(colocated_private, official)
+        self.assertTrue(
+            private_score is None or private_score["status"] == "needs_review"
+        )
+
+        unrelated = {
+            "name": "Mountain Dental",
+            "address": "9 Other St, Example, VT",
+            "latitude": "44.0001",
+            "longitude": "-72.0001",
+            "category": ["Dentist"],
+        }
+        self.assertIsNone(usgs_linkage.score_match(unrelated, official))
+
+    def test_usgs_helpers_and_validation_ids_are_stable(self):
+        self.assertEqual(usgs_download.attribute_value({"objectid": 7}, "OBJECTID"), 7)
+        first = place_validation.sample_id("general_google_negative", "abc")
+        second = place_validation.sample_id("general_google_negative", "abc")
+        self.assertEqual(first, second)
+        self.assertEqual(len(first), 20)
 
 
 if __name__ == "__main__":
