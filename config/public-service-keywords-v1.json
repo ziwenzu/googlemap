@@ -1,0 +1,188 @@
+{
+  "version": "public_service_keywords_v1",
+  "scope": "Automatic retrieval of public-facing administrative, policing and postal offices; no human labels or roster linkage.",
+  "match_fields": [
+    "name",
+    "category"
+  ],
+  "families": [
+    {
+      "id": "motor_vehicles",
+      "label_zh": "DMV／驾照与车辆登记",
+      "name_patterns": [
+        "\\b(?:department|division|bureau|office) of motor vehicles?\\b",
+        "\\bmotor vehicles? (?:department|division|bureau|office)\\b",
+        "\\b(?:dmv|bmv|rmv|mvd|omv)\\b",
+        "\\bdriver'?s? (?:licen[cs](?:e|ing)|services?) (?:office|center|centre|bureau|division)\\b"
+      ],
+      "categories": [
+        "Department of motor vehicles",
+        "Driver's license office",
+        "Driver and vehicle licensing agency",
+        "License bureau"
+      ]
+    },
+    {
+      "id": "police",
+      "label_zh": "警局／治安官",
+      "name_patterns": [
+        "\\bpolice (?:department|station|precinct|office|headquarters|bureau|district)\\b",
+        "\\b(?:state|city|county|municipal|metropolitan) police\\b",
+        "\\b(?:sheriff'?s?|sheriffs') (?:office|department|station|substation)\\b",
+        "\\bhighway patrol\\b"
+      ],
+      "categories": [
+        "Police department",
+        "Police station",
+        "Police",
+        "State police",
+        "Sheriff's department",
+        "Highway patrol",
+        "Civil police"
+      ]
+    },
+    {
+      "id": "postal_service",
+      "label_zh": "USPS邮局",
+      "name_patterns": [
+        "\\b(?:united states|u\\.?s\\.?) postal service\\b",
+        "\\bpost office\\b",
+        "\\busps\\b"
+      ],
+      "categories": [
+        "Post office"
+      ]
+    },
+    {
+      "id": "social_security",
+      "label_zh": "社会保障办事处",
+      "name_patterns": [
+        "\\bsocial security (?:administration|office|branch)\\b",
+        "\\bssa (?:office|field office)\\b"
+      ],
+      "categories": [
+        "Social security office"
+      ]
+    },
+    {
+      "id": "human_services",
+      "label_zh": "福利／就业与失业救济",
+      "name_patterns": [
+        "\\b(?:department|division|bureau|office) of (?:human|social|family|job and family) services\\b",
+        "\\b(?:human|social|family) services (?:department|office|agency)\\b",
+        "\\b(?:public assistance|welfare|medicaid|food stamps?|snap|unemployment(?: insurance)?) office\\b",
+        "\\b(?:department|division) of (?:labor|labour|employment|economic security)\\b",
+        "\\b(?:employment security|workforce development) (?:department|office|agency)\\b",
+        "\\bamerican job center\\b"
+      ],
+      "categories": [
+        "Department of Social Services",
+        "Social welfare center",
+        "Unemployment office",
+        "State employment department"
+      ]
+    },
+    {
+      "id": "tax_revenue",
+      "label_zh": "税务／税收办事处",
+      "name_patterns": [
+        "\\binternal revenue service\\b",
+        "\\birs (?:office|taxpayer assistance center)\\b",
+        "\\b(?:department|division) of (?:revenue|taxation)\\b",
+        "\\btax collector(?:'?s)?(?: office)?\\b",
+        "\\b(?:county|city|town|municipal) (?:tax|assessor|treasurer)(?:'?s)?(?: office)?\\b",
+        "\\b(?:tax assessor|assessor'?s|treasurer'?s) office\\b"
+      ],
+      "categories": [
+        "Tax department",
+        "Tax collector's office",
+        "City tax office"
+      ]
+    },
+    {
+      "id": "court",
+      "label_zh": "法院／司法办事窗口",
+      "name_patterns": [
+        "\\bcourthouse\\b",
+        "\\b(?:district|municipal|county|superior|supreme|probate|traffic|family|circuit|federal|magistrate|juvenile|bankruptcy|immigration) courts?\\b",
+        "\\bcourts? of (?:appeals?|common pleas)\\b"
+      ],
+      "categories": [
+        "Courthouse",
+        "City courthouse",
+        "County court",
+        "District court",
+        "Federal courthouse",
+        "Municipal court",
+        "Superior court",
+        "Magistrates' court",
+        "District Justice"
+      ]
+    },
+    {
+      "id": "civic_administration",
+      "label_zh": "市政办事／登记与许可",
+      "name_patterns": [
+        "\\b(?:city|town|township|borough|village) hall\\b",
+        "\\b(?:county|city|town|township|borough|village) clerk(?:'?s)?(?: office)?\\b",
+        "\\bclerk of (?:the )?courts?\\b",
+        "\\b(?:recorder|register) of deeds\\b",
+        "\\b(?:vital records|passport|building permits?|voter registration|elections?) office\\b",
+        "\\b(?:board of elections|election commission|registrar of voters)\\b",
+        "\\b(?:building|planning and zoning) department\\b",
+        "\\b(?:county|city|town|municipal) (?:permit|licensing|registrar|recorder)(?:'?s)?(?: office)?\\b"
+      ],
+      "categories": [
+        "City Hall",
+        "Town hall",
+        "Village hall",
+        "City clerk's office",
+        "County clerk's office",
+        "Marriage license bureau",
+        "Passport office",
+        "Voter registration office",
+        "Building department"
+      ]
+    }
+  ],
+  "exclusions": [
+    {
+      "id": "education_health_amenity",
+      "name_patterns": [
+        "\\b(?:university|college|school|academy|hospital|medical center|clinic|library|museum|memorial|monument)\\b"
+      ],
+      "category_patterns": [
+        "\\b(?:school|university|college|hospital|clinic|museum|library|memorial|historical landmark|educational institution)\\b",
+        "^(?:park|public swimming pool|amusement park|tourist attraction|historical place)$"
+      ]
+    },
+    {
+      "id": "private_commerce",
+      "name_patterns": [
+        "\\b(?:ups store|fedex|dhl|postal ?annex|mail boxes etc|mailbox rental|private mailbox)\\b",
+        "\\b(?:driving school|dmv services|police supply|police supplies|police association|fraternal order of police)\\b",
+        "\\b(?:attorney|lawyer|law firm|law office|bail bonds|tax preparation|tax preparer|h&r block|liberty tax|jackson hewitt)\\b",
+        "\\b(?:cafe|coffee shop|restaurant|pizza|tavern|salon|apartments?|wedding venue)\\b"
+      ],
+      "category_patterns": [
+        "\\b(?:restaurant|coffee shop|cafe|bar|bakery|lawyer|attorney|law firm|legal services|tax preparation|accountant|accounting firm|driving school|insurance agency|real estate|auto tag agency|tag agency|title company|vehicle dealer|car dealer|salon|moving company|security guard service|police supply store|wedding venue|event venue)\\b"
+      ]
+    },
+    {
+      "id": "nonservice_postal_facility",
+      "name_patterns": [
+        "\\b(?:collection box|drop ?box|mailbox|processing (?:and distribution )?center|distribution center|sorting (?:center|facility)|postal warehouse)\\b"
+      ],
+      "category_patterns": [
+        "^(?:mailbox supplier|warehouse|distribution service)$"
+      ]
+    },
+    {
+      "id": "out_of_scope_emergency_corrections",
+      "name_patterns": [],
+      "category_patterns": [
+        "^(?:fire station|fire department|prison|correctional services department|jail)$"
+      ]
+    }
+  ]
+}

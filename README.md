@@ -4,6 +4,28 @@ Reproducible, streaming Python tools for working with the
 [UCSD Google Local Data (2021)](https://mcauleylab.ucsd.edu/public_datasets/gdrive/googlelocal/)
 without committing raw reviews or reviewer identifiers to Git.
 
+## Current extraction: keywords and category lists, no human coding
+
+Run `make service-keywords-national` after downloading the metadata. This scans
+all 52 partitions and automatically selects eight public-facing service families:
+DMV/licensing, police/sheriffs, USPS, Social Security, welfare/employment, tax,
+courts, and civic registration/permit offices. It does not read student labels,
+join official rosters, call an LLM, or require human review.
+
+Rules match only names and exact Google categories; explicit exclusions remove
+out-of-scope institutions and obvious private-business matches. Results are
+deduplicated by `gmap_id`, written to
+`data/processed/public-service-keywords-v1/places.csv`, and split into eight
+nonoverlapping `by-service/` files. Existing output directories are protected
+from overwrite. Use `SERVICE_OUTPUT=...` to select a new destination on rerun.
+`Other`-only matches remain separate from the state/DC primary frame.
+
+See [automatic extraction instructions](docs/automatic-public-service-extraction.md)
+and the editable [keyword/category list](config/public-service-keywords-v1.json).
+The roster and human-validation workflows below are retained as historical
+options; they are not prerequisites for this dataset. Output is rule-selected,
+not a claim of exhaustively or independently verified government ownership.
+
 The default pilot uses the complete Vermont state files. It deliberately does not
 use the 10-core subset because k-core filtering removes low-review places and is
 therefore unsuitable for studying public-office coverage and review sparsity.
@@ -25,9 +47,9 @@ therefore unsuitable for studying public-office coverage and review sparsity.
 9. draws weighted, blinded validation samples and prepares one-coder work with
    a held-back delayed retest (the dual-coder export remains available).
 
-The rule-retrieved candidates are not a validated government-facility universe.
-Manual adjudication and official-roster recall checks are required before
-substantive analysis.
+The rule-retrieved places are not a validated government-facility universe.
+The current workflow deliberately uses a rule-defined service-office scope with
+no human-identification requirement; no accuracy or recall estimate is implied.
 
 ## Quick start
 
@@ -128,6 +150,8 @@ reviewer names, HMAC keys, or row-level restricted derivatives.
 - `scripts/10_link_usgs_to_google.py` — resumable official-to-Google reverse linkage
 - `scripts/11_draw_place_validation_sample.py` — weighted blinded validation sample
 - `scripts/12_prepare_single_coder_validation.py` — blinded one-coder work and held-back retest
+- `scripts/13_extract_public_service_places.py` — automatic keyword/category-list extraction
+- `config/public-service-keywords-v1.json` — eight service families and exclusion lists
 - `config/official-roster-sources.csv` — source roles and release constraints
 - `config/usgs-structure-layers.csv` — selected layers and analytic-tier policy
 - `scripts/tests/test_pipeline.py` — smoke and linkage tests

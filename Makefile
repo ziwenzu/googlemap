@@ -1,4 +1,5 @@
 PYTHON ?= python3
+.DEFAULT_GOAL := help
 PILOT_STATE ?= Vermont
 RAW_DIR := data/raw/ucsd-google-local
 INTERIM_DIR := data/interim
@@ -10,6 +11,22 @@ USGS_LINK_DIR := $(OFFICIAL_ROOT)/processed/usgs-google-linkage-by-state
 USGS_VALIDATION_DIR := $(OFFICIAL_ROOT)/validation
 SINGLE_CODER_MASTER ?= $(USGS_VALIDATION_DIR)/$(PILOT_STATE)-place-validation-master.csv
 SINGLE_CODER_PACKAGE ?= $(USGS_VALIDATION_DIR)/single-coder-v1
+SERVICE_OUTPUT ?= $(PROCESSED_DIR)/public-service-keywords-v1
+
+.PHONY: service-keywords-national service-keywords-pilot
+
+service-keywords-national:
+	$(PYTHON) scripts/13_extract_public_service_places.py \
+		--metadata-dir "$(RAW_DIR)" \
+		--rules config/public-service-keywords-v1.json \
+		--output-dir "$(SERVICE_OUTPUT)"
+
+service-keywords-pilot:
+	$(PYTHON) scripts/13_extract_public_service_places.py \
+		--metadata-dir "$(RAW_DIR)" \
+		--rules config/public-service-keywords-v1.json \
+		--output-dir "$(SERVICE_OUTPUT)-$(PILOT_STATE)" \
+		--partitions "$(PILOT_STATE)"
 
 .PHONY: official-single-coder-package
 
@@ -17,6 +34,8 @@ SINGLE_CODER_PACKAGE ?= $(USGS_VALIDATION_DIR)/single-coder-v1
 
 help:
 	@echo "Targets:"
+	@echo "  service-keywords-national automatic service-office extraction; no human coding"
+	@echo "  service-keywords-pilot automatic extraction for $(PILOT_STATE)"
 	@echo "  pilot-check     inspect remote file sizes"
 	@echo "  pilot-download  download metadata and reviews for $(PILOT_STATE)"
 	@echo "  national-check  inspect every complete U.S. partition"
