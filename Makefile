@@ -12,6 +12,28 @@ USGS_VALIDATION_DIR := $(OFFICIAL_ROOT)/validation
 SINGLE_CODER_MASTER ?= $(USGS_VALIDATION_DIR)/$(PILOT_STATE)-place-validation-master.csv
 SINGLE_CODER_PACKAGE ?= $(USGS_VALIDATION_DIR)/single-coder-v1
 SERVICE_OUTPUT ?= $(PROCESSED_DIR)/public-service-keywords-v1
+SERVICE_V2_OUTPUT ?= $(PROCESSED_DIR)/public-service-keywords-v2
+SERVICE_V2_REFERENCES ?= data/external/public-service-v2/2026-09-22
+
+.PHONY: service-v2-references service-v2-national service-v2-check
+
+service-v2-references:
+	$(PYTHON) scripts/14_fetch_service_references.py \
+		--output-dir "$(SERVICE_V2_REFERENCES)" \
+		--manifest data/download-manifest.tsv
+
+service-v2-national:
+	$(PYTHON) scripts/15_extract_public_service_v2.py \
+		--metadata-dir "$(RAW_DIR)" \
+		--rules config/public-service-keywords-v2.json \
+		--official "$(USGS_PROCESSED)" "$(SERVICE_V2_REFERENCES)/hud-pha-current.csv" \
+		--previous "$(PROCESSED_DIR)/public-service-keywords-v1/places.csv" \
+		--output-dir "$(SERVICE_V2_OUTPUT)"
+
+service-v2-check:
+	$(PYTHON) scripts/16_validate_service_v2.py \
+		--output-dir "$(SERVICE_V2_OUTPUT)" \
+		--previous "$(PROCESSED_DIR)/public-service-keywords-v1/places.csv"
 
 .PHONY: service-keywords-national service-keywords-pilot
 
@@ -34,6 +56,9 @@ service-keywords-pilot:
 
 help:
 	@echo "Targets:"
+	@echo "  service-v2-national nationwide 12-family extraction with official-location linkage"
+	@echo "  service-v2-references fetch current HUD PHA / all-state DMV agency references"
+	@echo "  service-v2-check validate v2 artifacts and compare with v1"
 	@echo "  service-keywords-national automatic service-office extraction; no human coding"
 	@echo "  service-keywords-pilot automatic extraction for $(PILOT_STATE)"
 	@echo "  pilot-check     inspect remote file sizes"
